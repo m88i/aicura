@@ -1,3 +1,20 @@
+//     Copyright 2020 Aicura Nexus Client and/or its authors
+//
+//     This file is part of Aicura Nexus Client.
+//
+//     Aicura Nexus Client is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU Lesser General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//
+//     Aicura Nexus Client is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU Lesser General Public License for more details.
+//
+//     You should have received a copy of the GNU Lesser General Public License
+//     along with Aicura Nexus Client.  If not, see <https://www.gnu.org/licenses/>.
+
 package nexus
 
 import (
@@ -7,13 +24,14 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strings"
 
 	"go.uber.org/zap"
 )
 
 const (
 	userAgent              = "acuri-nexus-client"
-	applicationJsonContent = "application/json"
+	applicationJSONContent = "application/json"
 	defaultNewAPIVersion   = "beta"
 	apiPath                = "service/rest"
 )
@@ -59,6 +77,7 @@ func (b *ClientBuilder) WithHTTPClient(httpClient *http.Client) *ClientBuilder {
 	return b
 }
 
+// Verbose sets a higher logging level for the client
 func (b *ClientBuilder) Verbose() *ClientBuilder {
 	b.client.logger = getLogger(true)
 	return b
@@ -75,6 +94,7 @@ func (b *ClientBuilder) Build() *Client {
 	return b.client
 }
 
+// NewClient creates a new Nexus `ClientBuilder` for client applications to start interacting with a Nexus Server
 func NewClient(baseURL string) *ClientBuilder {
 	c := &Client{}
 
@@ -97,9 +117,9 @@ func NewDefaultClient(baseURL string) *Client {
 	return NewClient(baseURL).Build()
 }
 
-func (c *Client) newRequest(method, apiPath string, body interface{}) (*http.Request, error) {
+func (c *Client) newRequest(method, apiPath string, query string, body interface{}) (*http.Request, error) {
 	pathReq := path.Join(c.baseURL.Path, apiPath)
-	urlReq := c.baseURL.ResolveReference(&url.URL{Path: pathReq})
+	urlReq := c.baseURL.ResolveReference(&url.URL{Path: pathReq, RawQuery: query})
 	c.logger.Debugf("Making a '%s' request to %s", method, urlReq)
 
 	var buf io.ReadWriter
@@ -118,9 +138,9 @@ func (c *Client) newRequest(method, apiPath string, body interface{}) (*http.Req
 	}
 
 	if body != nil {
-		req.Header.Set("Content-Type", applicationJsonContent)
+		req.Header.Set("Content-Type", applicationJSONContent)
 	}
-	req.Header.Set("Accept", applicationJsonContent)
+	req.Header.Set("Accept", applicationJSONContent)
 	req.Header.Set("User-Agent", userAgent)
 	if len(c.username) > 0 && len(c.password) > 0 {
 		req.SetBasicAuth(c.username, c.password)
@@ -129,13 +149,26 @@ func (c *Client) newRequest(method, apiPath string, body interface{}) (*http.Req
 	return req, nil
 }
 
+func (c *Client) get(apiPath string, query string) (*http.Request, error) {
+	return c.newRequest("GET", apiPath, query, nil)
+}
+
+func (c *Client) post(apiPath string, query string, body interface{}) (*http.Request, error) {
+	return c.newRequest("POST", apiPath, query, body)
+}
+
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(v)
+	if strings.HasPrefix(resp.Status, "4") {
+		return resp, newNexusError(resp)
+	}
+	if v != nil {
+		err = json.NewDecoder(resp.Body).Decode(v)
+	}
 	return resp, err
 }
 
