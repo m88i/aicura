@@ -1,0 +1,51 @@
+name: Nexus Client Basic Checks
+on:
+  pull_request:
+  push:
+    paths-ignore:
+      - "docs/**"
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "LICENSE"
+      - "LICENSE_NOTICE"
+      - "Makefile"
+      - ".github/ISSUE_TEMPLATE/**"
+    branches:
+      - master
+env:
+  GO_VERSION: 1.14
+jobs:
+  golint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: v1.27
+          args: --enable=golint --timeout=2m
+  unit_test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go ${{ env.GO_VERSION }}
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+        id: go
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod/cache
+          key: ${{ runner.os }}-go-cache-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-cache-
+
+      - name: Run Unit Tests
+        run: go test ./nexus/...
