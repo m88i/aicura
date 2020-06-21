@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [golint, unit_test]
     env:
-      IMAGE_OUTPUT: ~/cache/images/nexus3-latest.tar
+      IMAGE_OUTPUT: ~/cache/images
     steps:
       - name: Set up Go ${{ env.GO_VERSION }}
         uses: actions/setup-go@v2
