@@ -1,5 +1,4 @@
 #!/bin/sh
-set -eu
 
 # load image from cache to avoid pulling every time from internet
 source ./hack/ci/load-image-cache.sh
