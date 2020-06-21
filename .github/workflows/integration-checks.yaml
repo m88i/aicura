@@ -1,4 +1,4 @@
-name: Nexus Client Basic Checks
+name: Nexus Client Integration Checks
 on:
   pull_request:
   push:
@@ -52,6 +52,7 @@ jobs:
   integration_test:
     name: Integration Tests
     runs-on: ubuntu-latest
+    needs: [golint, unit_test]
     env:
       IMAGE_OUTPUT: ~/cache/images/nexus3-latest.tar
     steps:

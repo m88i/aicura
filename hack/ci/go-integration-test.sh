@@ -7,7 +7,7 @@ source ./hack/ci/load-image-cache.sh
 export NEXUS_TEST_BASE_URL="http://localhost:8081/"
 
 # spin up a container for the nexus server
-docker run --rm -p 8081:8081 -e INSTALL4J_ADD_VM_PARAMS="-Dnexus.security.randompassword=false" docker.io/sonatype/nexus3:latest
+docker run -d --rm -p 8081:8081 -e INSTALL4J_ADD_VM_PARAMS="-Dnexus.security.randompassword=false" docker.io/sonatype/nexus3:latest
 # save in the file system for later runs
 docker save -o ${IMAGE_OUTPUT} nexus3
 
