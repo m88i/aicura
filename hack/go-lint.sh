@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #     Copyright 2020 Aicura Nexus Client and/or its authors
 #
 #     This file is part of Aicura Nexus Client.

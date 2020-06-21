@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #     Copyright 2020 Aicura Nexus Client and/or its authors
 #
 #     This file is part of Aicura Nexus Client.
@@ -15,7 +15,6 @@
 #
 #     You should have received a copy of the GNU Lesser General Public License
 #     along with Aicura Nexus Client.  If not, see <https://www.gnu.org/licenses/>.
-
 
 source ./hack/go-lint.sh
 
