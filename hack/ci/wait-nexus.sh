@@ -20,7 +20,7 @@ set -eu
 
 # See: https://gist.github.com/rgl/f90ff293d56dbb0a1e0f7e7e89a81f42
 
-declare -r PROBE=${NEXUS_TEST_BASE_URL}/service/rest/v1/status/check
+declare -r PROBE=${NEXUS_TEST_BASE_URL}/service/rest/v1/status
 
 wait-for-url() {
     echo "Waiting for $1"
