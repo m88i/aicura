@@ -31,4 +31,4 @@ wait-for-url() {
     echo "OK!"
     curl -I $1
 }
-wait-for-url http://${PROBE}
+wait-for-url ${PROBE}
