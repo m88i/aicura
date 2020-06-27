@@ -1,3 +1,7 @@
+![Nexus Client Integration Checks](https://github.com/m88i/aicura/workflows/Nexus%20Client%20Integration%20Checks/badge.svg)
+[![codecov](https://codecov.io/gh/m88i/aicura/branch/master/graph/badge.svg)](https://codecov.io/gh/m88i/aicura)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/m88i/nexus-operator)
+
 # AICURA: A Sonatype Nexus API in Go
 
 `aicura` is a client library for [Sonatype Nexus Manager v3 API](https://help.sonatype.com/repomanager3/rest-and-integration-api) written in GoLang.

@@ -48,7 +48,11 @@ jobs:
             ${{ runner.os }}-go-cache-
 
       - name: Run Unit Tests
-        run: go test ./nexus/...
+        run: go test ./nexus/...  -count=1 -coverprofile=coverage.txt -covermode=atomic
+
+      - name: Send Coverage Report
+        run: bash <(curl -s https://codecov.io/bash) -F aicura
+
   integration_test:
     name: Integration Tests
     runs-on: ubuntu-latest
