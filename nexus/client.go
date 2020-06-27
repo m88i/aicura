@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	userAgent              = "acuri-nexus-client"
+	userAgent              = "aicura-nexus-client"
 	applicationJSONContent = "application/json"
 	defaultNewAPIVersion   = "beta"
 	apiPath                = "service/rest"
@@ -55,43 +55,43 @@ type Client struct {
 
 // ClientBuilder fluent API to build a new Nexus Client
 type ClientBuilder struct {
-	client *Client
+	*Client
 }
 
 // APIVersion sets the API version for the new Nexus Service API. Default to `beta`.
 func (b *ClientBuilder) APIVersion(version string) *ClientBuilder {
-	b.client.apiVersion = version
+	b.apiVersion = version
 	return b
 }
 
 // WithCredentials defines the credentials to be used on each request to the Nexus Server.
 func (b *ClientBuilder) WithCredentials(username, password string) *ClientBuilder {
-	b.client.username = username
-	b.client.password = password
+	b.username = username
+	b.password = password
 	return b
 }
 
 // WithHTTPClient defines a custom `http.Client` reference
 func (b *ClientBuilder) WithHTTPClient(httpClient *http.Client) *ClientBuilder {
-	b.client.httpClient = httpClient
+	b.httpClient = httpClient
 	return b
 }
 
 // Verbose sets a higher logging level for the client
 func (b *ClientBuilder) Verbose() *ClientBuilder {
-	b.client.logger = getLogger(true)
+	b.logger = getLogger(true)
 	return b
 }
 
 // Build returns the new Nexus Client
 func (b *ClientBuilder) Build() *Client {
-	if b.client.httpClient == nil {
-		b.client.httpClient = http.DefaultClient
+	if b.httpClient == nil {
+		b.httpClient = http.DefaultClient
 	}
-	if b.client.logger == nil {
-		b.client.logger = getLogger(false)
+	if b.logger == nil {
+		b.logger = getLogger(false)
 	}
-	return b.client
+	return b.Client
 }
 
 // NewClient creates a new Nexus `ClientBuilder` for client applications to start interacting with a Nexus Server
@@ -109,7 +109,7 @@ func NewClient(baseURL string) *ClientBuilder {
 	// services builder
 	c.UserService = (*UserService)(&c.shared)
 
-	return &ClientBuilder{client: c}
+	return &ClientBuilder{c}
 }
 
 // NewDefaultClient creates a new raw, straight forward Nexus Client. For a more customizable client, use `NewClient` instead
