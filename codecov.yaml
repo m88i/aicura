@@ -1,0 +1,11 @@
+flags:
+  operator:
+    paths:
+      - nexus/
+coverage:
+  status:
+    project:
+      aicura:
+        target: 54
+        flags:
+          - aicura
