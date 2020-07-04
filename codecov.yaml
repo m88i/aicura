@@ -6,6 +6,6 @@ coverage:
   status:
     project:
       aicura:
-        target: 54
+        target: 69
         flags:
           - aicura

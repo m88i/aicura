@@ -1,7 +1,7 @@
 ![Nexus Client Integration Checks](https://github.com/m88i/aicura/workflows/Nexus%20Client%20Integration%20Checks/badge.svg)
 [![codecov](https://codecov.io/gh/m88i/aicura/branch/master/graph/badge.svg)](https://codecov.io/gh/m88i/aicura)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/m88i/nexus-operator)
- [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
  
 # AICURA: A Sonatype Nexus API in Go
 

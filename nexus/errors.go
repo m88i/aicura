@@ -32,6 +32,8 @@ type ServerMessage struct {
 type ClientError struct {
 	HTTPStatusCode int
 	ServerMessages []ServerMessage
+	RawData        interface{}
+	RequestBody    interface{}
 	errorMessage   string
 }
 
@@ -41,9 +43,12 @@ func (n *ClientError) Error() string {
 }
 
 func newNexusError(resp *http.Response) error {
+	req, res := unmarshalRawData(resp)
 	nexusError := &ClientError{
 		HTTPStatusCode: resp.StatusCode,
 		errorMessage:   "Request Failure",
+		RawData:        res,
+		RequestBody:    req,
 	}
 	switch resp.StatusCode {
 	case http.StatusBadRequest:
@@ -61,4 +66,17 @@ func decodeServerMessage(resp *http.Response) []ServerMessage {
 		getLogger(false).Warn("Impossible to decode response body into a server message: ", err)
 	}
 	return messages
+}
+
+func unmarshalRawData(resp *http.Response) (response, request interface{}) {
+	err := json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		getLogger(false).Warn("Impossible to decode response body into raw data: ", err)
+	}
+	reader, _ := resp.Request.GetBody()
+	err = json.NewDecoder(reader).Decode(&request)
+	if err != nil {
+		getLogger(false).Warn("Impossible to decode request body into raw data: ", err)
+	}
+	return
 }
