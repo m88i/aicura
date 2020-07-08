@@ -38,6 +38,7 @@ const (
 
 type service struct {
 	client *Client
+	logger *zap.SugaredLogger
 }
 
 // Client base structure for the Nexus Client
@@ -50,7 +51,8 @@ type Client struct {
 	shared     service // same instance shared among all services
 	logger     *zap.SugaredLogger
 
-	UserService *UserService
+	UserService                 *UserService
+	MavenProxyRepositoryService *MavenProxyRepositoryService
 }
 
 // ClientBuilder fluent API to build a new Nexus Client
@@ -105,9 +107,11 @@ func NewClient(baseURL string) *ClientBuilder {
 	c.baseURL = serverURL.ResolveReference(&url.URL{Path: apiPath})
 	c.apiVersion = defaultNewAPIVersion
 	c.shared.client = c
+	c.shared.logger = c.logger
 
 	// services builder
 	c.UserService = (*UserService)(&c.shared)
+	c.MavenProxyRepositoryService = (*MavenProxyRepositoryService)(&c.shared)
 
 	return &ClientBuilder{c}
 }

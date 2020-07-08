@@ -77,48 +77,29 @@ var validationMessage = `[
   ]`
 
 func TestUserService_ListUsers(t *testing.T) {
-	server, teardown := newMockServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		u, p, _ := r.BasicAuth()
-		assert.Equal(t, getUserForTest(), u)
-		assert.Equal(t, getPasswordForTest(), p)
-		_, err := w.Write([]byte(listUsersExpected))
-		assert.NoError(t, err)
-	}))
-	defer teardown()
+	s := newMockServer(t).WithResponse(listUsersExpected).Build()
+	defer s.teardown()
 
-	client := newClientForTest(server)
-	users, err := client.UserService.ListAllUsers()
+	users, err := s.Client().UserService.List()
 	assert.NoError(t, err)
 	assert.Len(t, users, 2)
 }
 
 func TestUserService_GetUserByID(t *testing.T) {
-	server, teardown := newMockServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		u, p, _ := r.BasicAuth()
-		assert.Equal(t, getUserForTest(), u)
-		assert.Equal(t, getPasswordForTest(), p)
-		_, err := w.Write([]byte(adminUserResult))
-		assert.NoError(t, err)
-	}))
-	defer teardown()
+	s := newMockServer(t).WithResponse(adminUserResult).Build()
+	defer s.teardown()
 
-	client := newClientForTest(server)
-	user, err := client.UserService.GetUserByID(getUserForTest())
+	user, err := s.Client().UserService.GetUserByID(getUserForTest())
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 	assert.Equal(t, getUserForTest(), user.UserID)
 }
 
 func TestUserService_AddUser(t *testing.T) {
-	server, teardown := newMockServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		u, p, _ := r.BasicAuth()
-		assert.Equal(t, getUserForTest(), u)
-		assert.Equal(t, getPasswordForTest(), p)
-	}))
-	defer teardown()
+	s := newMockServer(t).Build()
+	defer s.teardown()
 
-	client := newClientForTest(server)
-	err := client.UserService.AddUser(User{
+	err := s.Client().UserService.Add(User{
 		Email:     "alien@mail.com",
 		UserID:    "alien",
 		FirstName: "Alien",
@@ -132,18 +113,10 @@ func TestUserService_AddUser(t *testing.T) {
 }
 
 func TestUserService_FailtToAddUser(t *testing.T) {
-	server, teardown := newMockServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		u, p, _ := r.BasicAuth()
-		assert.Equal(t, getUserForTest(), u)
-		assert.Equal(t, getPasswordForTest(), p)
-		w.WriteHeader(http.StatusBadRequest)
-		_, err := w.Write([]byte(validationMessage))
-		assert.NoError(t, err)
-	}))
-	defer teardown()
+	s := newMockServer(t).WithResponse(validationMessage).WithStatusCode(http.StatusBadRequest).Build()
+	defer s.teardown()
 
-	client := newClientForTest(server)
-	err := client.UserService.AddUser(User{
+	err := s.Client().UserService.Add(User{
 		Email:     "alien@mail.com",
 		UserID:    "alien",
 		FirstName: "Alien",

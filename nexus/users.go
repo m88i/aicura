@@ -38,8 +38,8 @@ type User struct {
 // UserService contains all operations related to the User domain
 type UserService service
 
-// ListAllUsers Retrieves all users from default source
-func (u *UserService) ListAllUsers() ([]User, error) {
+// List Retrieves all users from default source
+func (u *UserService) List() ([]User, error) {
 	req, err := u.client.get(u.client.appendVersion("/security/users"), "")
 	if err != nil {
 		return nil, err
@@ -67,8 +67,8 @@ func (u *UserService) GetUserByID(userID string) (*User, error) {
 	return nil, err
 }
 
-// AddUser adds a new user in the Nexus Server. It's worth calling `GetUserByID` to verify if the desired user is not present.
-func (u *UserService) AddUser(user User) error {
+// Add adds a new user in the Nexus Server. It's worth calling `GetUserByID` to verify if the desired user is not present.
+func (u *UserService) Add(user User) error {
 	req, err := u.client.post(u.client.appendVersion("/security/users"), "", user)
 	if err != nil {
 		return err
