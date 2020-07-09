@@ -171,7 +171,7 @@ var allRepositories = `[ {
   } ]`
 
 func TestMavenProxyRepositoryService_List(t *testing.T) {
-	s := newMockServer(t).WithResponse(allRepositories).Build()
+	s := newServerWrapper(t).WithResponse(allRepositories).Build()
 	defer s.teardown()
 	repos, err := s.Client().MavenProxyRepositoryService.List()
 	assert.NoError(t, err)
@@ -185,7 +185,7 @@ func TestMavenProxyRepositoryService_List(t *testing.T) {
 }
 
 func TestMavenProxyRepositoryService_GetByName(t *testing.T) {
-	s := newMockServer(t).WithResponse(allRepositories).Build()
+	s := newServerWrapper(t).WithResponse(allRepositories).Build()
 	defer s.teardown()
 	repo, err := s.Client().MavenProxyRepositoryService.GetRepoByName("maven-central")
 	assert.NoError(t, err)
@@ -194,7 +194,7 @@ func TestMavenProxyRepositoryService_GetByName(t *testing.T) {
 }
 
 func TestMavenProxyRepositoryService_Add(t *testing.T) {
-	s := newMockServer(t).Build()
+	s := newServerWrapper(t).Build()
 	defer s.teardown()
 	client := s.Client()
 	repository := MavenProxyRepository{

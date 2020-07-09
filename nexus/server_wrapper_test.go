@@ -34,23 +34,23 @@ const (
 	nexusTestPasswordEnv = "NEXUS_TEST_PASSWORD"
 )
 
-type mockServerBuilder struct {
+type serverWrapperBuilder struct {
 	responseBody string
 	statusCode   int
 	t            *testing.T
 }
 
-func (m *mockServerBuilder) WithResponse(response string) *mockServerBuilder {
+func (m *serverWrapperBuilder) WithResponse(response string) *serverWrapperBuilder {
 	m.responseBody = response
 	return m
 }
 
-func (m *mockServerBuilder) WithStatusCode(statusCode int) *mockServerBuilder {
+func (m *serverWrapperBuilder) WithStatusCode(statusCode int) *serverWrapperBuilder {
 	m.statusCode = statusCode
 	return m
 }
 
-func (m *mockServerBuilder) Build() *mockServer {
+func (m *serverWrapperBuilder) Build() *serverWrapper {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		u, p, _ := r.BasicAuth()
 		assert.Equal(m.t, getUserForTest(), u)
@@ -64,7 +64,7 @@ func (m *mockServerBuilder) Build() *mockServer {
 		}
 	})
 	s := httptest.NewServer(handler)
-	mockServer := &mockServer{
+	mockServer := &serverWrapper{
 		httpClient: &http.Client{
 			Transport: &http.Transport{
 				DialContext: func(_ context.Context, network, _ string) (net.Conn, error) {
@@ -78,12 +78,13 @@ func (m *mockServerBuilder) Build() *mockServer {
 	return mockServer
 }
 
-type mockServer struct {
+type serverWrapper struct {
 	httpClient *http.Client
 	teardown   func()
 }
 
-func (m *mockServer) Client() *Client {
+// Client builds a client reference to be used on unit and integration tests
+func (m *serverWrapper) Client() *Client {
 	// we are not testing agains a mocked server
 	if isRemoteTesting() {
 		baseURL := os.Getenv(nexusTestBaseURLEnv)
@@ -93,6 +94,11 @@ func (m *mockServer) Client() *Client {
 			Verbose().
 			Build()
 	}
+	return m.MockClient()
+}
+
+// moMockClient builds a client reference to use only on unit tests
+func (m *serverWrapper) MockClient() *Client {
 	return NewClient("http://nexus.com/").
 		WithCredentials(getUserForTest(), getPasswordForTest()).
 		WithHTTPClient(m.httpClient).
@@ -100,9 +106,9 @@ func (m *mockServer) Client() *Client {
 		Build()
 }
 
-// newMockServer creates an httptest.Server reference used by unit tests
-func newMockServer(t *testing.T) *mockServerBuilder {
-	return &mockServerBuilder{t: t}
+// newServerWrapper creates an httptest.Server reference used by unit and integration tests
+func newServerWrapper(t *testing.T) *serverWrapperBuilder {
+	return &serverWrapperBuilder{t: t}
 }
 
 func getUserForTest() string {

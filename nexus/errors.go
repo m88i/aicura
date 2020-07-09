@@ -42,19 +42,49 @@ func (n *ClientError) Error() string {
 	return n.errorMessage
 }
 
+// IsServerError checks if the given error is a server error (500)
+func IsServerError(err error) bool {
+	if err == nil {
+		return false
+	}
+	if _, ok := err.(*ClientError); ok {
+		return err.(*ClientError).HTTPStatusCode == http.StatusInternalServerError
+	}
+	return false
+}
+
+// IsNotFound checks if the given error is a Not Found error (404)
+func IsNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	if _, ok := err.(*ClientError); ok {
+		return err.(*ClientError).HTTPStatusCode == http.StatusNotFound
+	}
+	return false
+}
+
+// IsAuthenticationError checks if the given error is related to authentication problems (403 or 401)
+func IsAuthenticationError(err error) bool {
+	if err == nil {
+		return false
+	}
+	if _, ok := err.(*ClientError); ok {
+		return err.(*ClientError).HTTPStatusCode == http.StatusUnauthorized ||
+			err.(*ClientError).HTTPStatusCode == http.StatusForbidden
+	}
+	return false
+}
+
 func newNexusError(resp *http.Response) error {
 	req, res := unmarshalRawData(resp)
 	nexusError := &ClientError{
 		HTTPStatusCode: resp.StatusCode,
-		errorMessage:   "Request Failure",
 		RawData:        res,
 		RequestBody:    req,
 	}
-	switch resp.StatusCode {
-	case http.StatusBadRequest:
+	if resp.StatusCode == http.StatusBadRequest {
 		nexusError.ServerMessages = decodeServerMessage(resp)
-	case http.StatusNotFound:
-		nexusError.errorMessage = "Not found"
 	}
 	return nexusError
 }
@@ -73,10 +103,12 @@ func unmarshalRawData(resp *http.Response) (response, request interface{}) {
 	if err != nil {
 		getLogger(false).Warn("Impossible to decode response body into raw data: ", err)
 	}
-	reader, _ := resp.Request.GetBody()
-	err = json.NewDecoder(reader).Decode(&request)
-	if err != nil {
-		getLogger(false).Warn("Impossible to decode request body into raw data: ", err)
+	if resp.Request.Body != nil { // getting the body without this check would panic for empty body requests
+		reader, _ := resp.Request.GetBody()
+		err = json.NewDecoder(reader).Decode(&request)
+		if err != nil {
+			getLogger(false).Warn("Impossible to decode request body into raw data: ", err)
+		}
 	}
 	return
 }

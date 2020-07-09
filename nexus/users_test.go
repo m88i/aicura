@@ -77,7 +77,7 @@ var validationMessage = `[
   ]`
 
 func TestUserService_ListUsers(t *testing.T) {
-	s := newMockServer(t).WithResponse(listUsersExpected).Build()
+	s := newServerWrapper(t).WithResponse(listUsersExpected).Build()
 	defer s.teardown()
 
 	users, err := s.Client().UserService.List()
@@ -86,7 +86,7 @@ func TestUserService_ListUsers(t *testing.T) {
 }
 
 func TestUserService_GetUserByID(t *testing.T) {
-	s := newMockServer(t).WithResponse(adminUserResult).Build()
+	s := newServerWrapper(t).WithResponse(adminUserResult).Build()
 	defer s.teardown()
 
 	user, err := s.Client().UserService.GetUserByID(getUserForTest())
@@ -96,7 +96,7 @@ func TestUserService_GetUserByID(t *testing.T) {
 }
 
 func TestUserService_AddUser(t *testing.T) {
-	s := newMockServer(t).Build()
+	s := newServerWrapper(t).Build()
 	defer s.teardown()
 
 	err := s.Client().UserService.Add(User{
@@ -113,7 +113,7 @@ func TestUserService_AddUser(t *testing.T) {
 }
 
 func TestUserService_FailtToAddUser(t *testing.T) {
-	s := newMockServer(t).WithResponse(validationMessage).WithStatusCode(http.StatusBadRequest).Build()
+	s := newServerWrapper(t).WithResponse(validationMessage).WithStatusCode(http.StatusBadRequest).Build()
 	defer s.teardown()
 
 	err := s.Client().UserService.Add(User{

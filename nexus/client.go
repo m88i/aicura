@@ -121,6 +121,19 @@ func NewDefaultClient(baseURL string) *Client {
 	return NewClient(baseURL).Build()
 }
 
+// IsNonScriptOperationsEnabled checks if the target Nexus server has APIs capabilities without relying on Groovy scripts
+// this should be used if the caller is not sure if the server accepts the capabilities offered by this library, since for
+// security reasons and to comply with Nexus Server default policy, it does not support Groovy scripts execution.
+func (c *Client) IsNonScriptOperationsEnabled() (bool, error) {
+	_, err := c.MavenProxyRepositoryService.List()
+	if IsNotFound(err) {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 func (c *Client) newRequest(method, apiPath string, query string, body interface{}) (*http.Request, error) {
 	pathReq := path.Join(c.baseURL.Path, apiPath)
 	urlReq := c.baseURL.ResolveReference(&url.URL{Path: pathReq, RawQuery: query})
