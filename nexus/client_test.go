@@ -27,15 +27,15 @@ import (
 func TestClient_IsNonScriptOperationsEnabled_OldServers(t *testing.T) {
 	s := newServerWrapper(t).WithStatusCode(http.StatusNotFound).Build()
 	defer s.teardown()
-	enabled, err := s.MockClient().IsNonScriptOperationsEnabled()
+	enabled, err := s.MockClient().ScriptsRequired()
 	assert.NoError(t, err)
-	assert.False(t, enabled)
+	assert.True(t, enabled)
 }
 
 func TestClient_IsNonScriptOperationsEnabled_NewServers(t *testing.T) {
 	s := newServerWrapper(t).WithResponse(listUsersExpected).Build()
 	defer s.teardown()
-	enabled, err := s.Client().IsNonScriptOperationsEnabled()
+	enabled, err := s.Client().ScriptsRequired()
 	assert.NoError(t, err)
-	assert.True(t, enabled)
+	assert.False(t, enabled)
 }
