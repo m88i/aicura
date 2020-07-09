@@ -6,6 +6,7 @@ coverage:
   status:
     project:
       aicura:
-        target: 69
+        target: auto
+        threshold: 3%
         flags:
           - aicura

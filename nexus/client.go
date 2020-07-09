@@ -121,6 +121,20 @@ func NewDefaultClient(baseURL string) *Client {
 	return NewClient(baseURL).Build()
 }
 
+// ScriptsRequired checks if the target Nexus server has APIs capabilities without relying on Groovy scripts.
+// This should be used if the caller is not sure if the server accepts the capabilities offered by this library, since for
+// security reasons and to comply with Nexus Server default policy, it does not support Groovy scripts execution.
+// If this function returns `true`, capabilities that otherwise requires Groovy scripts (like creating repos), won't work.
+func (c *Client) ScriptsRequired() (bool, error) {
+	_, err := c.MavenProxyRepositoryService.List()
+	if IsNotFound(err) {
+		return true, nil
+	} else if err != nil {
+		return true, err
+	}
+	return false, nil
+}
+
 func (c *Client) newRequest(method, apiPath string, query string, body interface{}) (*http.Request, error) {
 	pathReq := path.Join(c.baseURL.Path, apiPath)
 	urlReq := c.baseURL.ResolveReference(&url.URL{Path: pathReq, RawQuery: query})
