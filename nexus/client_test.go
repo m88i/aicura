@@ -39,3 +39,17 @@ func TestClient_IsNonScriptOperationsEnabled_NewServers(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, enabled)
 }
+
+func TestClient_SetUsername(t *testing.T) {
+	c := &Client{}
+	username := "test-username"
+	c.SetUsername(username)
+	assert.Equal(t, c.username, username)
+}
+
+func TestClient_SetPassword(t *testing.T) {
+	c := &Client{}
+	password := "test-password"
+	c.SetPassword(password)
+	assert.Equal(t, c.password, password)
+}

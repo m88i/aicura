@@ -121,6 +121,16 @@ func NewDefaultClient(baseURL string) *Client {
 	return NewClient(baseURL).Build()
 }
 
+// SetUsername sets the client username
+func (c *Client) SetUsername(username string) {
+	c.username = username
+}
+
+// SetPassword sets the client password
+func (c *Client) SetPassword(password string) {
+	c.password = password
+}
+
 // ScriptsRequired checks if the target Nexus server has APIs capabilities without relying on Groovy scripts.
 // This should be used if the caller is not sure if the server accepts the capabilities offered by this library, since for
 // security reasons and to comply with Nexus Server default policy, it does not support Groovy scripts execution.
