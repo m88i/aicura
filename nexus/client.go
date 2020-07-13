@@ -121,6 +121,12 @@ func NewDefaultClient(baseURL string) *Client {
 	return NewClient(baseURL).Build()
 }
 
+// SetCredentials sets the client username and password
+func (c *Client) SetCredentials(username, password string) {
+	c.username = username
+	c.password = password
+}
+
 // SetUsername sets the client username
 func (c *Client) SetUsername(username string) {
 	c.username = username
