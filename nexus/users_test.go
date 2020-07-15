@@ -53,6 +53,18 @@ var listUsersExpected = `[
 	}
   ]`
 
+var defaultUser = User{
+	UserID:    "test-user",
+	FirstName: "Test",
+	LastName:  "User",
+	Email:     "test@user",
+	Source:    "default",
+	ReadOnly:  false,
+	Roles:     []string{"nx-admin"},
+	Status:    "active",
+	Password:  "t3st-us3r",
+}
+
 var adminUserResult = `[
 	{
 	  "userId": "admin",
@@ -83,6 +95,19 @@ func TestUserService_ListUsers(t *testing.T) {
 	users, err := s.Client().UserService.List()
 	assert.NoError(t, err)
 	assert.Len(t, users, 2)
+}
+
+func TestUserService_Update(t *testing.T) {
+	// first, let's try updating a user which doesn't exist
+	s := newServerWrapper(t).WithStatusCode(http.StatusNotFound).Build()
+	assert.Error(t, s.Client().UserService.Update(defaultUser))
+
+	// now one that does exist
+	s = newServerWrapper(t).WithStatusCode(http.StatusOK).Build()
+	// add the user
+	assert.NoError(t, s.Client().UserService.Add(defaultUser))
+	// try to update it
+	assert.NoError(t, s.Client().UserService.Update(defaultUser))
 }
 
 func TestUserService_GetUserByID(t *testing.T) {

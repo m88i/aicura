@@ -19,6 +19,7 @@ package nexus
 
 import (
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,6 +39,22 @@ func TestClient_IsNonScriptOperationsEnabled_NewServers(t *testing.T) {
 	enabled, err := s.Client().ScriptsRequired()
 	assert.NoError(t, err)
 	assert.False(t, enabled)
+}
+
+func TestClient_put(t *testing.T) {
+	c := NewDefaultClient("")
+	apiPath := "test-path"
+	query := "test-query"
+	body := "test-body"
+	req, err := c.put(apiPath, query, body)
+	assert.Nil(t, err)
+	assert.True(t, strings.HasSuffix(req.URL.Path, apiPath))
+	assert.Equal(t, query, req.URL.RawQuery)
+
+	reqBody := make([]byte, 2*len(body))
+	_, err = req.Body.Read(reqBody)
+	assert.Nil(t, err)
+	assert.Contains(t, string(reqBody), body)
 }
 
 func TestClient_SetCredentials(t *testing.T) {
