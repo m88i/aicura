@@ -184,11 +184,15 @@ func (c *Client) newRequest(method, apiPath string, query string, body interface
 }
 
 func (c *Client) get(apiPath string, query string) (*http.Request, error) {
-	return c.newRequest("GET", apiPath, query, nil)
+	return c.newRequest(http.MethodGet, apiPath, query, nil)
 }
 
 func (c *Client) post(apiPath string, query string, body interface{}) (*http.Request, error) {
-	return c.newRequest("POST", apiPath, query, body)
+	return c.newRequest(http.MethodPost, apiPath, query, body)
+}
+
+func (c *Client) put(apiPath string, query string, body interface{}) (*http.Request, error) {
+	return c.newRequest(http.MethodPut, apiPath, query, body)
 }
 
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {

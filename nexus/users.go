@@ -18,6 +18,7 @@
 package nexus
 
 import (
+	"fmt"
 	"net/url"
 )
 
@@ -47,6 +48,16 @@ func (u *UserService) List() ([]User, error) {
 	var users []User
 	_, err = u.client.do(req, &users)
 	return users, err
+}
+
+// Update persists a new version of an existing user on the Nexus server
+func (u *UserService) Update(user User) error {
+	req, err := u.client.put(u.client.appendVersion(fmt.Sprintf("/security/users/%s", user.UserID)), "", user)
+	if err != nil {
+		return err
+	}
+	_, err = u.client.do(req, nil)
+	return err
 }
 
 // GetUserByID Gets the user by it's id (authentication username)
