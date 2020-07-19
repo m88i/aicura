@@ -76,7 +76,7 @@ const (
 	RepositoryTypeGroup RepositoryType = "group"
 )
 
-func filterRepositoryJSONByFormat(jsonRepos json.RawMessage, format string) ([]byte, error) {
+func filterRepositoryJSONByFormat(jsonRepos json.RawMessage, format string, repoType RepositoryType) ([]byte, error) {
 	// converts into a generic Go type (the JsonPath parser does not work with raw/bytes/string types)
 	jsonData := interface{}(nil)
 	if err := json.Unmarshal(jsonRepos, &jsonData); err != nil {
@@ -84,7 +84,7 @@ func filterRepositoryJSONByFormat(jsonRepos json.RawMessage, format string) ([]b
 	}
 	builder := gval.Full(jsonpath.PlaceholderExtension())
 	// filter using JsonPath only the repositories that we are interested to
-	path, err := builder.NewEvaluable(fmt.Sprintf(`$..[?(@.format == "%s")]`, format))
+	path, err := builder.NewEvaluable(fmt.Sprintf(`$..[?(@.format == "%s" && @.type == "%s")]`, format, repoType))
 	if err != nil {
 		return nil, err
 	}

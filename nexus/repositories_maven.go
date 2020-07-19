@@ -17,12 +17,7 @@
 
 package nexus
 
-import (
-	"context"
-	"encoding/json"
-
-	"golang.org/x/sync/errgroup"
-)
+import "encoding/json"
 
 const repositoriesMavenProxyPath = "/repositories/maven/proxy"
 
@@ -91,62 +86,37 @@ type MavenProxyRepository struct {
 	RoutingRule   string        `json:"routingRule,omitempty"`
 }
 
-// MavenProxyRepositoryService service to handle all Maven Proxy Repositories operations
-type MavenProxyRepositoryService service
-
-// Add adds new Proxy Maven repositories to the Nexus Server
-func (m *MavenProxyRepositoryService) Add(repositories ...MavenProxyRepository) error {
-	if len(repositories) == 0 {
-		m.logger.Warnf("Called AddRepository with no repositories to add")
-		return nil
-	}
-	errs, _ := errgroup.WithContext(context.Background())
-	for _, repo := range repositories {
-		errs.Go(func() error {
-			req, err := m.client.post(m.client.appendVersion(repositoriesMavenProxyPath), "", repo)
-			if err != nil {
-				return err
-			}
-			_, err = m.client.do(req, nil)
-			return err
-		})
-	}
-	return errs.Wait()
+// MavenGroupRepository structure for Maven Group Repository
+type MavenGroupRepository struct {
+	Repository `json:",inline"`
+	Group      MavenGroup `json:"group"`
+	Storage    Storage    `json:"storage,omitempty"`
 }
 
-// List lists all maven repositories from the Nexus Server
-func (m *MavenProxyRepositoryService) List() ([]MavenProxyRepository, error) {
+// MavenGroup describes a collection of Maven repositories in a given group
+type MavenGroup struct {
+	MemberNames []string `json:"memberNames"`
+}
+
+type mavenRepositoryService service
+
+func (m *mavenRepositoryService) list(repoType RepositoryType, unmarshalValue interface{}) error {
 	req, err := m.client.get(m.client.appendVersion(repositoriesPath), "")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	var jsonRepos json.RawMessage
 	_, err = m.client.do(req, &jsonRepos)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	filtered, err := filterRepositoryJSONByFormat(jsonRepos, repositoryFormatMaven2)
+	filtered, err := filterRepositoryJSONByFormat(jsonRepos, repositoryFormatMaven2, repoType)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if filtered != nil {
-		repositories := []MavenProxyRepository{}
-		err = json.Unmarshal(filtered, &repositories)
-		return repositories, err
+		err = json.Unmarshal(filtered, unmarshalValue)
+		return err
 	}
-	return nil, nil
-}
-
-// GetRepoByName gets the repository by name or nil if not found
-func (m *MavenProxyRepositoryService) GetRepoByName(name string) (*MavenProxyRepository, error) {
-	repos, err := m.List()
-	if err != nil {
-		return nil, err
-	}
-	for _, repo := range repos {
-		if repo.Name == name {
-			return &repo, nil
-		}
-	}
-	return nil, nil
+	return nil
 }

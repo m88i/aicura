@@ -53,6 +53,8 @@ type Client struct {
 
 	UserService                 *UserService
 	MavenProxyRepositoryService *MavenProxyRepositoryService
+	MavenGroupRepositoryService *MavenGroupRepositoryService
+	mavenRepositoryService      *mavenRepositoryService
 }
 
 // ClientBuilder fluent API to build a new Nexus Client
@@ -112,6 +114,8 @@ func NewClient(baseURL string) *ClientBuilder {
 	// services builder
 	c.UserService = (*UserService)(&c.shared)
 	c.MavenProxyRepositoryService = (*MavenProxyRepositoryService)(&c.shared)
+	c.MavenGroupRepositoryService = (*MavenGroupRepositoryService)(&c.shared)
+	c.mavenRepositoryService = (*mavenRepositoryService)(&c.shared)
 
 	return &ClientBuilder{c}
 }
