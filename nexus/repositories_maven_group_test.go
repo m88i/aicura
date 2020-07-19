@@ -41,3 +41,25 @@ func TestMavenGroupRepositoryService_Update(t *testing.T) {
 		assert.NoError(t, err)
 	}
 }
+
+func TestMavenGroupRepositoryService_List(t *testing.T) {
+	s := newServerWrapper(t).WithResponse(allRepositoriesMockData).Build()
+	defer s.teardown()
+	repos, err := s.Client().MavenGroupRepositoryService.List()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, repos)
+	for _, repo := range repos {
+		if repo.Name == "maven-public" {
+			assert.Equal(t, RepositoryTypeGroup, *repo.Type)
+		}
+	}
+}
+
+func TestMavenGroupRepositoryService_GetByName(t *testing.T) {
+	s := newServerWrapper(t).WithResponse(allRepositoriesMockData).Build()
+	defer s.teardown()
+	repo, err := s.Client().MavenGroupRepositoryService.GetRepoByName("maven-public")
+	assert.NoError(t, err)
+	assert.Equal(t, "maven-public", repo.Name)
+	assert.Equal(t, RepositoryTypeGroup, *repo.Type)
+}
