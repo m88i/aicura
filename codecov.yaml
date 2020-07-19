@@ -7,6 +7,6 @@ coverage:
     project:
       aicura:
         target: auto
-        threshold: 5%
+        threshold: 10%
         flags:
           - aicura
