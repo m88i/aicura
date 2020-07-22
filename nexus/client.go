@@ -53,6 +53,8 @@ type Client struct {
 
 	UserService                 *UserService
 	MavenProxyRepositoryService *MavenProxyRepositoryService
+	MavenGroupRepositoryService *MavenGroupRepositoryService
+	mavenRepositoryService      *mavenRepositoryService
 }
 
 // ClientBuilder fluent API to build a new Nexus Client
@@ -93,6 +95,7 @@ func (b *ClientBuilder) Build() *Client {
 	if b.logger == nil {
 		b.logger = getLogger(false)
 	}
+	b.shared.logger = b.logger
 	return b.Client
 }
 
@@ -107,11 +110,12 @@ func NewClient(baseURL string) *ClientBuilder {
 	c.baseURL = serverURL.ResolveReference(&url.URL{Path: apiPath})
 	c.apiVersion = defaultNewAPIVersion
 	c.shared.client = c
-	c.shared.logger = c.logger
 
 	// services builder
 	c.UserService = (*UserService)(&c.shared)
 	c.MavenProxyRepositoryService = (*MavenProxyRepositoryService)(&c.shared)
+	c.MavenGroupRepositoryService = (*MavenGroupRepositoryService)(&c.shared)
+	c.mavenRepositoryService = (*mavenRepositoryService)(&c.shared)
 
 	return &ClientBuilder{c}
 }

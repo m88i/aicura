@@ -27,7 +27,12 @@ func NewBool(bln bool) *bool {
 	return &bln
 }
 
-// NewRepositoryType easy access to a pointr for RepositoryType
+// NewRepositoryType easy access to a pointer for RepositoryType
 func NewRepositoryType(rType RepositoryType) *RepositoryType {
 	return &rType
+}
+
+// NewRepositoryFormat easy access to a pointer for RepositoryFormat
+func NewRepositoryFormat(format RepositoryFormat) *RepositoryFormat {
+	return &format
 }

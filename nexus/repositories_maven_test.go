@@ -17,13 +17,7 @@
 
 package nexus
 
-import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-)
-
-var allRepositories = `[ {
+var allRepositoriesMockData = `[ {
 	"name" : "nuget-group",
 	"format" : "nuget",
 	"url" : "http://localhost:8081/repository/nuget-group",
@@ -170,75 +164,32 @@ var allRepositories = `[ {
 	"type" : "group"
   } ]`
 
-func TestMavenProxyRepositoryService_List(t *testing.T) {
-	s := newServerWrapper(t).WithResponse(allRepositories).Build()
-	defer s.teardown()
-	repos, err := s.Client().MavenProxyRepositoryService.List()
-	assert.NoError(t, err)
-	assert.Len(t, repos, 4)
-	for _, repo := range repos {
-		if repo.Name == "maven-central" {
-			assert.Equal(t, "https://repo1.maven.org/maven2/", repo.Proxy.RemoteURL)
-			assert.Equal(t, RepositoryTypeProxy, *repo.Type)
-		}
-	}
-}
-
-func TestMavenProxyRepositoryService_GetByName(t *testing.T) {
-	s := newServerWrapper(t).WithResponse(allRepositories).Build()
-	defer s.teardown()
-	repo, err := s.Client().MavenProxyRepositoryService.GetRepoByName("maven-central")
-	assert.NoError(t, err)
-	assert.Equal(t, "maven-central", repo.Name)
-	assert.Equal(t, RepositoryTypeProxy, *repo.Type)
-}
-
-func TestMavenProxyRepositoryService_Add(t *testing.T) {
-	s := newServerWrapper(t).Build()
-	defer s.teardown()
-	client := s.Client()
-	repository := MavenProxyRepository{
-		Repository: Repository{
-			Name:   "apache",
-			Format: NewString(repositoryFormatMaven2),
-			Type:   NewRepositoryType(RepositoryTypeProxy),
-			Online: NewBool(true),
-		},
-		Proxy: Proxy{
-			RemoteURL:      "https://repo.maven.apache.org/maven2/",
-			ContentMaxAge:  1440,
-			MetadataMaxAge: -1,
-		},
-		Storage: Storage{
-			BlobStoreName:               "default",
-			StrictContentTypeValidation: true,
-		},
-		NegativeCache: NegativeCache{
-			Enabled:    true,
-			TimeToLive: 1440,
-		},
-		HTTPClient: HTTPClient{
-			AutoBlock: true,
-			Blocked:   NewBool(false),
-		},
-		Maven: Maven{
-			LayoutPolicy:  LayoutPolicyStrict,
-			VersionPolicy: VersionPolicyRelease,
-		},
-	}
-	err := client.MavenProxyRepositoryService.Add(repository)
-	assert.NoError(t, err)
-	assertRemote(t, func() error {
-		// on remote testing we can check if the repository was correctly inserted
-		repos, err := client.MavenProxyRepositoryService.List()
-		assert.NotEmpty(t, repos)
-		for _, repo := range repos {
-			if repo.Name == "apache" {
-				assert.Equal(t, "https://repo.maven.apache.org/maven2/", repo.Proxy.RemoteURL)
-				return err
-			}
-		}
-		assert.Fail(t, "Repository apache not found")
-		return err
-	})
+var apacheMavenRepoMockData = MavenProxyRepository{
+	Repository: Repository{
+		Name:   "apache",
+		Format: NewRepositoryFormat(RepositoryFormatMaven2),
+		Type:   NewRepositoryType(RepositoryTypeProxy),
+		Online: NewBool(true),
+	},
+	Proxy: Proxy{
+		RemoteURL:      "https://repo.maven.apache.org/maven2/",
+		ContentMaxAge:  1440,
+		MetadataMaxAge: -1,
+	},
+	Storage: Storage{
+		BlobStoreName:               "default",
+		StrictContentTypeValidation: true,
+	},
+	NegativeCache: NegativeCache{
+		Enabled:    true,
+		TimeToLive: 1440,
+	},
+	HTTPClient: HTTPClient{
+		AutoBlock: true,
+		Blocked:   NewBool(false),
+	},
+	Maven: Maven{
+		LayoutPolicy:  LayoutPolicyStrict,
+		VersionPolicy: VersionPolicyRelease,
+	},
 }
