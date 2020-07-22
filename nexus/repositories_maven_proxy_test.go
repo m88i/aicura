@@ -18,6 +18,7 @@
 package nexus
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -66,4 +67,18 @@ func TestMavenProxyRepositoryService_Add(t *testing.T) {
 		assert.Fail(t, "Repository apache not found")
 		return err
 	})
+}
+
+func TestMavenProxyRepositoryService_AddEmpty(t *testing.T) {
+	s := newServerWrapper(t).Build()
+	defer s.teardown()
+	err := s.Client().MavenProxyRepositoryService.Add()
+	assert.NoError(t, err)
+}
+
+func TestMavenProxyRepositoryService_AddNonSense(t *testing.T) {
+	s := newServerWrapper(t).WithStatusCode(http.StatusBadRequest).Build()
+	defer s.teardown()
+	err := s.Client().MavenProxyRepositoryService.Add(MavenProxyRepository{})
+	assert.Error(t, err)
 }

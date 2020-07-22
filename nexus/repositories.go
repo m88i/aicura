@@ -27,17 +27,16 @@ import (
 )
 
 const (
-	repositoriesPath       = "/repositories"
-	repositoryFormatMaven2 = "maven2"
+	repositoriesPath = "/repositories"
 )
 
 // Repository is the base structure for Nexus repositories
 type Repository struct {
-	Name   string          `json:"name,omitempty"`
-	Format *string         `json:"format,omitempty"`
-	Type   *RepositoryType `json:"type,omitempty"`
-	URL    *string         `json:"url,omitempty"`
-	Online *bool           `json:"online,omitempty"`
+	Name   string            `json:"name,omitempty"`
+	Format *RepositoryFormat `json:"format,omitempty"`
+	Type   *RepositoryType   `json:"type,omitempty"`
+	URL    *string           `json:"url,omitempty"`
+	Online *bool             `json:"online,omitempty"`
 }
 
 // Storage ...
@@ -76,7 +75,15 @@ const (
 	RepositoryTypeGroup RepositoryType = "group"
 )
 
-func filterRepositoryJSONByFormat(jsonRepos json.RawMessage, format string, repoType RepositoryType) ([]byte, error) {
+// RepositoryFormat describes supported API repositories format
+type RepositoryFormat string
+
+const (
+	// RepositoryFormatMaven2 ...
+	RepositoryFormatMaven2 RepositoryFormat = "maven2"
+)
+
+func filterRepository(jsonRepos json.RawMessage, format RepositoryFormat, repoType RepositoryType) ([]byte, error) {
 	// converts into a generic Go type (the JsonPath parser does not work with raw/bytes/string types)
 	jsonData := interface{}(nil)
 	if err := json.Unmarshal(jsonRepos, &jsonData); err != nil {

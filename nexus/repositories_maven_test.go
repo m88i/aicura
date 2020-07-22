@@ -167,7 +167,7 @@ var allRepositoriesMockData = `[ {
 var apacheMavenRepoMockData = MavenProxyRepository{
 	Repository: Repository{
 		Name:   "apache",
-		Format: NewString(repositoryFormatMaven2),
+		Format: NewRepositoryFormat(RepositoryFormatMaven2),
 		Type:   NewRepositoryType(RepositoryTypeProxy),
 		Online: NewBool(true),
 	},

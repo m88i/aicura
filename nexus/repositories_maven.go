@@ -110,7 +110,7 @@ func (m *mavenRepositoryService) list(repoType RepositoryType, unmarshalValue in
 	if err != nil {
 		return err
 	}
-	filtered, err := filterRepositoryJSONByFormat(jsonRepos, repositoryFormatMaven2, repoType)
+	filtered, err := filterRepository(jsonRepos, RepositoryFormatMaven2, repoType)
 	if err != nil {
 		return err
 	}

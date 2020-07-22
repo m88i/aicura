@@ -25,6 +25,7 @@ import (
 
 func TestMavenGroupRepositoryService_Update(t *testing.T) {
 	s := newServerWrapper(t).WithResponse(allRepositoriesMockData).Build()
+	defer s.teardown()
 
 	repos, err := s.Client().MavenGroupRepositoryService.List()
 	assert.NoError(t, err)
