@@ -17,31 +17,25 @@
 
 package nexus
 
-type userFakeService struct{}
+import (
+	"testing"
 
-var usersFake = make(map[string]*User)
+	"github.com/stretchr/testify/assert"
+)
 
-func (u *userFakeService) List() ([]User, error) {
-	users := make([]User, 0)
-	for _, user := range usersFake {
-		users = append(users, *user)
+func TestMvnGroupServiceFakeCheck(t *testing.T) {
+	client := NewFakeClient()
+	repos, err := client.MavenGroupRepositoryService.List()
+	assert.NoError(t, err)
+	assert.Empty(t, repos)
+	group := MavenGroupRepository{
+		Repository: Repository{
+			Name: "maven-public",
+		},
 	}
-	return users, nil
-}
-
-func (u *userFakeService) Update(user User) error {
-	if usersFake[user.UserID] == nil {
-		return nil
-	}
-	usersFake[user.UserID] = &user
-	return nil
-}
-
-func (u *userFakeService) GetUserByID(userID string) (*User, error) {
-	return usersFake[userID], nil
-}
-
-func (u *userFakeService) Add(user User) error {
-	usersFake[user.UserID] = &user
-	return nil
+	err = client.MavenGroupRepositoryService.Update(group)
+	assert.NoError(t, err)
+	newGroup, err := client.MavenGroupRepositoryService.GetRepoByName("maven-public")
+	assert.NoError(t, err)
+	assert.Nil(t, newGroup)
 }

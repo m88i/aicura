@@ -17,31 +17,22 @@
 
 package nexus
 
-type userFakeService struct{}
+import (
+	"testing"
 
-var usersFake = make(map[string]*User)
+	"github.com/stretchr/testify/assert"
+)
 
-func (u *userFakeService) List() ([]User, error) {
-	users := make([]User, 0)
-	for _, user := range usersFake {
-		users = append(users, *user)
-	}
-	return users, nil
-}
-
-func (u *userFakeService) Update(user User) error {
-	if usersFake[user.UserID] == nil {
-		return nil
-	}
-	usersFake[user.UserID] = &user
-	return nil
-}
-
-func (u *userFakeService) GetUserByID(userID string) (*User, error) {
-	return usersFake[userID], nil
-}
-
-func (u *userFakeService) Add(user User) error {
-	usersFake[user.UserID] = &user
-	return nil
+func TestMvnProxyServiceFakeCheck(t *testing.T) {
+	client := NewFakeClient()
+	repo := apacheMavenRepoMockData
+	err := client.MavenProxyRepositoryService.Add(repo)
+	assert.NoError(t, err)
+	newRepo, err := client.MavenProxyRepositoryService.GetRepoByName(repo.Name)
+	assert.NoError(t, err)
+	assert.NotNil(t, newRepo)
+	assert.Equal(t, "apache", newRepo.Name)
+	repos, err := client.MavenProxyRepositoryService.List()
+	assert.NoError(t, err)
+	assert.Len(t, repos, 1)
 }

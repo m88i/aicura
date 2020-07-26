@@ -24,10 +24,16 @@ import (
 )
 
 // MavenProxyRepositoryService service to handle all Maven Proxy Repositories operations
-type MavenProxyRepositoryService service
+type MavenProxyRepositoryService interface {
+	Add(repositories ...MavenProxyRepository) error
+	List() ([]MavenProxyRepository, error)
+	GetRepoByName(name string) (*MavenProxyRepository, error)
+}
+
+type mavenProxyRepositoryService service
 
 // Add adds new Proxy Maven repositories to the Nexus Server
-func (m *MavenProxyRepositoryService) Add(repositories ...MavenProxyRepository) error {
+func (m *mavenProxyRepositoryService) Add(repositories ...MavenProxyRepository) error {
 	if len(repositories) == 0 {
 		m.logger.Warnf("Called AddRepository with no repositories to add")
 		return nil
@@ -47,14 +53,14 @@ func (m *MavenProxyRepositoryService) Add(repositories ...MavenProxyRepository) 
 }
 
 // List lists all maven repositories from the Nexus Server
-func (m *MavenProxyRepositoryService) List() ([]MavenProxyRepository, error) {
+func (m *mavenProxyRepositoryService) List() ([]MavenProxyRepository, error) {
 	repositories := []MavenProxyRepository{}
 	err := m.client.mavenRepositoryService.list(RepositoryTypeProxy, &repositories)
 	return repositories, err
 }
 
 // GetRepoByName gets the repository by name or nil if not found
-func (m *MavenProxyRepositoryService) GetRepoByName(name string) (*MavenProxyRepository, error) {
+func (m *mavenProxyRepositoryService) GetRepoByName(name string) (*MavenProxyRepository, error) {
 	repos, err := m.List()
 	if err != nil {
 		return nil, err

@@ -52,8 +52,8 @@ type Client struct {
 	logger     *zap.SugaredLogger
 
 	UserService                 UserService
-	MavenProxyRepositoryService *MavenProxyRepositoryService
-	MavenGroupRepositoryService *MavenGroupRepositoryService
+	MavenProxyRepositoryService MavenProxyRepositoryService
+	MavenGroupRepositoryService MavenGroupRepositoryService
 	mavenRepositoryService      *mavenRepositoryService
 }
 
@@ -113,8 +113,8 @@ func NewClient(baseURL string) *ClientBuilder {
 
 	// services builder
 	c.UserService = (*userService)(&c.shared)
-	c.MavenProxyRepositoryService = (*MavenProxyRepositoryService)(&c.shared)
-	c.MavenGroupRepositoryService = (*MavenGroupRepositoryService)(&c.shared)
+	c.MavenProxyRepositoryService = (*mavenProxyRepositoryService)(&c.shared)
+	c.MavenGroupRepositoryService = (*mavenGroupRepositoryService)(&c.shared)
 	c.mavenRepositoryService = (*mavenRepositoryService)(&c.shared)
 
 	return &ClientBuilder{c}
@@ -125,6 +125,8 @@ func NewClient(baseURL string) *ClientBuilder {
 func NewFakeClient() *Client {
 	c := &Client{}
 	c.UserService = &userFakeService{}
+	c.MavenGroupRepositoryService = &mvnGroupFakeService{}
+	c.MavenProxyRepositoryService = &mvnProxyFakeService{}
 	return c
 }
 

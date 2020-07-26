@@ -17,31 +17,25 @@
 
 package nexus
 
-type userFakeService struct{}
+type mvnProxyFakeService struct{}
 
-var usersFake = make(map[string]*User)
+var mvnProxyFake = make(map[string]*MavenProxyRepository)
 
-func (u *userFakeService) List() ([]User, error) {
-	users := make([]User, 0)
-	for _, user := range usersFake {
-		users = append(users, *user)
+func (m *mvnProxyFakeService) Add(repositories ...MavenProxyRepository) error {
+	for _, repo := range repositories {
+		mvnProxyFake[repo.Name] = &repo
 	}
-	return users, nil
-}
-
-func (u *userFakeService) Update(user User) error {
-	if usersFake[user.UserID] == nil {
-		return nil
-	}
-	usersFake[user.UserID] = &user
 	return nil
 }
 
-func (u *userFakeService) GetUserByID(userID string) (*User, error) {
-	return usersFake[userID], nil
+func (m *mvnProxyFakeService) List() ([]MavenProxyRepository, error) {
+	repos := make([]MavenProxyRepository, 0)
+	for _, repo := range mvnProxyFake {
+		repos = append(repos, *repo)
+	}
+	return repos, nil
 }
 
-func (u *userFakeService) Add(user User) error {
-	usersFake[user.UserID] = &user
-	return nil
+func (m *mvnProxyFakeService) GetRepoByName(name string) (*MavenProxyRepository, error) {
+	return mvnProxyFake[name], nil
 }
