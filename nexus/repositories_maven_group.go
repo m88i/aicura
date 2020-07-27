@@ -20,10 +20,16 @@ package nexus
 import "fmt"
 
 // MavenGroupRepositoryService service to handle all Maven Proxy Repositories operations
-type MavenGroupRepositoryService service
+type MavenGroupRepositoryService interface {
+	Update(repo MavenGroupRepository) error
+	List() ([]MavenGroupRepository, error)
+	GetRepoByName(name string) (*MavenGroupRepository, error)
+}
+
+type mavenGroupRepositoryService service
 
 // Update updates a given Maven Group repository
-func (m *MavenGroupRepositoryService) Update(repo MavenGroupRepository) error {
+func (m *mavenGroupRepositoryService) Update(repo MavenGroupRepository) error {
 	req, err := m.client.put(m.client.appendVersion(fmt.Sprintf("/repositories/maven/group/%s", repo.Name)), "", repo)
 	if err != nil {
 		return err
@@ -33,14 +39,14 @@ func (m *MavenGroupRepositoryService) Update(repo MavenGroupRepository) error {
 }
 
 // List lists all maven repositories from the Nexus Server
-func (m *MavenGroupRepositoryService) List() ([]MavenGroupRepository, error) {
+func (m *mavenGroupRepositoryService) List() ([]MavenGroupRepository, error) {
 	repositories := []MavenGroupRepository{}
 	err := m.client.mavenRepositoryService.list(RepositoryTypeGroup, &repositories)
 	return repositories, err
 }
 
 // GetRepoByName gets the repository by name or nil if not found
-func (m *MavenGroupRepositoryService) GetRepoByName(name string) (*MavenGroupRepository, error) {
+func (m *mavenGroupRepositoryService) GetRepoByName(name string) (*MavenGroupRepository, error) {
 	repos, err := m.List()
 	if err != nil {
 		return nil, err

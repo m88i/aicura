@@ -51,9 +51,9 @@ type Client struct {
 	shared     service // same instance shared among all services
 	logger     *zap.SugaredLogger
 
-	UserService                 *UserService
-	MavenProxyRepositoryService *MavenProxyRepositoryService
-	MavenGroupRepositoryService *MavenGroupRepositoryService
+	UserService                 UserService
+	MavenProxyRepositoryService MavenProxyRepositoryService
+	MavenGroupRepositoryService MavenGroupRepositoryService
 	mavenRepositoryService      *mavenRepositoryService
 }
 
@@ -112,12 +112,22 @@ func NewClient(baseURL string) *ClientBuilder {
 	c.shared.client = c
 
 	// services builder
-	c.UserService = (*UserService)(&c.shared)
-	c.MavenProxyRepositoryService = (*MavenProxyRepositoryService)(&c.shared)
-	c.MavenGroupRepositoryService = (*MavenGroupRepositoryService)(&c.shared)
+	c.UserService = (*userService)(&c.shared)
+	c.MavenProxyRepositoryService = (*mavenProxyRepositoryService)(&c.shared)
+	c.MavenGroupRepositoryService = (*mavenGroupRepositoryService)(&c.shared)
 	c.mavenRepositoryService = (*mavenRepositoryService)(&c.shared)
 
 	return &ClientBuilder{c}
+}
+
+// NewFakeClient creates a mocked client for testing purposes.
+// It's backed up by hashmaps, so if you insert a user for instance, you can list, update, or delete
+func NewFakeClient() *Client {
+	c := &Client{}
+	c.UserService = &userFakeService{}
+	c.MavenGroupRepositoryService = &mvnGroupFakeService{}
+	c.MavenProxyRepositoryService = &mvnProxyFakeService{}
+	return c
 }
 
 // NewDefaultClient creates a new raw, straight forward Nexus Client. For a more customizable client, use `NewClient` instead

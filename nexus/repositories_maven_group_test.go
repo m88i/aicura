@@ -33,11 +33,12 @@ func TestMavenGroupRepositoryService_Update(t *testing.T) {
 
 	if len(repos) > 0 { //sanity check to not panic
 		s = newServerWrapper(t).Build()
-		apacheMavenRepoMockData.Name = apacheMavenRepoMockData.Name + "3"
-		err := s.Client().MavenProxyRepositoryService.Add(apacheMavenRepoMockData)
+		repo := apacheMavenRepoMockData
+		repo.Name = repo.Name + "3"
+		err := s.Client().MavenProxyRepositoryService.Add(repo)
 		assert.NoError(t, err)
 
-		repos[0].Group.MemberNames = append(repos[0].Group.MemberNames, apacheMavenRepoMockData.Name)
+		repos[0].Group.MemberNames = append(repos[0].Group.MemberNames, repo.Name)
 		err = s.Client().MavenGroupRepositoryService.Update(repos[0])
 		assert.NoError(t, err)
 	}

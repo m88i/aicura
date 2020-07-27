@@ -37,10 +37,17 @@ type User struct {
 }
 
 // UserService contains all operations related to the User domain
-type UserService service
+type UserService interface {
+	List() ([]User, error)
+	Update(user User) error
+	GetUserByID(userID string) (*User, error)
+	Add(user User) error
+}
+
+type userService service
 
 // List Retrieves all users from default source
-func (u *UserService) List() ([]User, error) {
+func (u *userService) List() ([]User, error) {
 	req, err := u.client.get(u.client.appendVersion("/security/users"), "")
 	if err != nil {
 		return nil, err
@@ -51,7 +58,7 @@ func (u *UserService) List() ([]User, error) {
 }
 
 // Update persists a new version of an existing user on the Nexus server
-func (u *UserService) Update(user User) error {
+func (u *userService) Update(user User) error {
 	req, err := u.client.put(u.client.appendVersion(fmt.Sprintf("/security/users/%s", user.UserID)), "", user)
 	if err != nil {
 		return err
@@ -61,7 +68,7 @@ func (u *UserService) Update(user User) error {
 }
 
 // GetUserByID Gets the user by it's id (authentication username)
-func (u *UserService) GetUserByID(userID string) (*User, error) {
+func (u *userService) GetUserByID(userID string) (*User, error) {
 	parsedURL, err := url.ParseQuery("userId=" + userID)
 	if err != nil {
 		return nil, err
@@ -79,7 +86,7 @@ func (u *UserService) GetUserByID(userID string) (*User, error) {
 }
 
 // Add adds a new user in the Nexus Server. It's worth calling `GetUserByID` to verify if the desired user is not present.
-func (u *UserService) Add(user User) error {
+func (u *userService) Add(user User) error {
 	req, err := u.client.post(u.client.appendVersion("/security/users"), "", user)
 	if err != nil {
 		return err

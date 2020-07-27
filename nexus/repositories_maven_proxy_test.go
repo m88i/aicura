@@ -51,15 +51,16 @@ func TestMavenProxyRepositoryService_Add(t *testing.T) {
 	s := newServerWrapper(t).Build()
 	defer s.teardown()
 	client := s.Client()
-	apacheMavenRepoMockData.Name = apacheMavenRepoMockData.Name + "2"
-	err := client.MavenProxyRepositoryService.Add(apacheMavenRepoMockData)
+	newRepo := apacheMavenRepoMockData
+	newRepo.Name = newRepo.Name + "2"
+	err := client.MavenProxyRepositoryService.Add(newRepo)
 	assert.NoError(t, err)
 	assertRemote(t, func() error {
 		// on remote testing we can check if the repository was correctly inserted
 		repos, err := client.MavenProxyRepositoryService.List()
 		assert.NotEmpty(t, repos)
 		for _, repo := range repos {
-			if repo.Name == apacheMavenRepoMockData.Name {
+			if repo.Name == newRepo.Name {
 				assert.Equal(t, "https://repo.maven.apache.org/maven2/", repo.Proxy.RemoteURL)
 				return err
 			}
